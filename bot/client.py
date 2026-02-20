@@ -3,11 +3,12 @@ import os
 from binance.client import Client
 from binance.exceptions import BinanceAPIException, BinanceRequestException
 from dotenv import load_dotenv
+from bot.logging_config import setup_logger
 
 load_dotenv()
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
+logger = setup_logger(__name__)
+
 
 class BinanceClient:
     def __init__(self):
