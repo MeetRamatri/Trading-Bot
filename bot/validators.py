@@ -26,7 +26,7 @@ def validate_side(side: str) -> str:
 
 def validate_order_type(order_type: str) -> str:
     valid_types = {
-        "LIMIT", "MARKET", "STOP", "STOP_MARKET",
+        "LIMIT", "MARKET", "STOP", "STOP_MARKET", "STOP_LIMIT",
         "TAKE_PROFIT", "TAKE_PROFIT_MARKET", "TRAILING_STOP_MARKET"
     }
     
@@ -49,3 +49,21 @@ def validate_quantity(quantity: Union[int, float, str]) -> float:
         raise ValidationError(f"Quantity must be a positive number greater than 0, got {qty}.")
     
     return qty
+
+def validate_price(price: Union[int, float, str, None], order_type: str) -> Union[float, None]:
+    if order_type in {"LIMIT", "STOP_LIMIT"}:
+        if price is None:
+            raise ValidationError(f"Price must be provided for order type '{order_type}'.")
+            
+    if price is not None:
+        try:
+            p = float(price)
+        except (ValueError, TypeError):
+            raise ValidationError(f"Price must be a numeric value, got {type(price).__name__}.")
+            
+        if p <= 0:
+            raise ValidationError(f"Price must be a positive number greater than 0, got {p}.")
+            
+        return p
+        
+    return None
