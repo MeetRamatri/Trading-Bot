@@ -93,5 +93,38 @@ def limit_order(
             print_error(f"Unexpected Error:\n{e}")
             raise typer.Exit(code=1)
 
+@app.command("stop-limit-order")
+def stop_limit_order(
+    symbol: str = typer.Argument(..., help="Trading pair symbol (e.g., BTCUSDT)"),
+    side: str = typer.Argument(..., help="Order side (BUY or SELL)"),
+    quantity: float = typer.Argument(..., help="Quantity to trade"),
+    stop_price: float = typer.Argument(..., help="Stop price to trigger the limit order"),
+    price: float = typer.Argument(..., help="Limit price")
+):
+    """
+    Places a STOP-LIMIT order on Binance Futures Testnet.
+    """
+    try:
+        symbol = validate_symbol(symbol)
+        side = validate_side(side)
+        quantity = validate_quantity(quantity)
+        # Price and stop_price validation are handled in the order manager / validate_price, but let's just let it pass to manager
+    except ValidationError as e:
+        console.print(Panel(f"[bold red]Validation Error:[/bold red]\n{e}", title="Invalid Input", border_style="red"))
+        raise typer.Exit(code=1)
+
+    manager = get_order_manager()
+    
+    with console.status(f"Placing STOP-LIMIT order for {quantity} {symbol} ({side}) Trigger: {stop_price} Limit: {price}...", spinner="dots"):
+        try:
+            response = manager.place_stop_limit_order(symbol, side, quantity, stop_price, price)
+            print_success("STOP-LIMIT Order", response)
+        except (BinanceAPIException, BinanceRequestException) as e:
+            print_error(f"API Error:\n{e}")
+            raise typer.Exit(code=1)
+        except Exception as e:
+            print_error(f"Unexpected Error:\n{e}")
+            raise typer.Exit(code=1)
+
 if __name__ == "__main__":
     app()
