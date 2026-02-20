@@ -67,3 +67,11 @@ def validate_price(price: Union[int, float, str, None], order_type: str) -> Unio
         return p
         
     return None
+
+def would_trigger_immediately(stop_price: float, current_price: float, side: str) -> bool:
+    side = side.upper().strip()
+    if side == "BUY" and current_price >= stop_price:
+        return True
+    elif side == "SELL" and current_price <= stop_price:
+        return True
+    return False
